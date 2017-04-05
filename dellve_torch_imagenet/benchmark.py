@@ -20,6 +20,30 @@ import torchvision.datasets as datasets
 import torchvision.models as models
 
 class Trainer(trainer.Trainer):
+
+    def __init__(self, benchmark, *args, **kwargs):
+        trainer.Trainer.__init__(self, *args, **kwargs)
+        # Save DELLve benchmark
+        #
+        # Note: we need benchmark object in train() method to update progress
+        self.benchmark = benchmark
+    
+    def run(self, epochs=1):
+        # Save number of epochs
+        # 
+        # Note: we need number of epochs in train() method to calculate progress
+        #
+        self.epochs = epochs
+        
+        # Initialize progress
+        self.benchmark.progress = 0
+
+        # Run trainer
+        trainer.Trainer.run(self, epochs)
+
+        # Finilize progress
+        self.benchmark.progress = 100
+
     def train(self):
         for i, data in enumerate(self.dataset, self.iterations + 1):
             batch_input, batch_target = data
@@ -44,7 +68,10 @@ class Trainer(trainer.Trainer):
                               *plugin_data)
             self.call_plugins('update', i, self.model)
 
-        self.iterations += i
+            # Update benchmark progress
+            self.benchmark.progress = float(i) / (len(self.dataset) * self.epochs)
+        
+        self.iterations = i
 
 class TorchImagenetBenchmark(dellve.Benchmark):
 
@@ -109,7 +136,7 @@ class TorchImagenetBenchmark(dellve.Benchmark):
                                     momentum=sgd_momentum,
                                     weight_decay=sgd_weight_decay)
 
-        t = Trainer(model, criterion, optimizer, train_data_loader)
+        t = Trainer(self, model, criterion, optimizer, train_data_loader)
 
         print 'Start training...'
 
@@ -123,7 +150,7 @@ class AlexnetBenchmark(TorchImagenetBenchmark):
 
     name = 'AlexnetBenchmark'
 
-    def run(self):
+    def routine(self):
         self.run_benchmark('alexnet')
 
 # Note: all of the benchmarks bellow result in
