@@ -19,6 +19,28 @@ import torchvision.transforms as transforms
 import torchvision.datasets as datasets
 import torchvision.models as models
 
+class DataSet(datasets.CIFAR10):
+    def __init__(self, size_limit=None, *args, **kwargs):
+        datasets.CIFAR10.__init__(self, *args, **kwargs)
+
+        if size_limit is None:
+            self.__size_limit = datasets.CIFAR10.__len__(self)
+        else:
+            if size_limit > datasets.CIFAR10.__len__(self):
+                raise ValueError('CIFAR10 size_limit is too large')
+            elif size_limit < 0:
+                raise ValueError('CIFAR10 size_limit must be positive')
+            self.__size_limit = size_limit
+
+    def __len__(self):
+        return self.__size_limit
+
+    def __getitem__(self, index):
+        if index >= self.__size_limit:
+            raise KeyError()
+        else:
+            return datasets.CIFAR10.__getitem__(self, index)
+
 class Trainer(trainer.Trainer):
 
     def __init__(self, benchmark, *args, **kwargs):
@@ -27,14 +49,14 @@ class Trainer(trainer.Trainer):
         #
         # Note: we need benchmark object in train() method to update progress
         self.benchmark = benchmark
-    
+
     def run(self, epochs=1):
         # Save number of epochs
-        # 
+        #
         # Note: we need number of epochs in train() method to calculate progress
         #
         self.epochs = epochs
-        
+
         # Initialize progress
         self.benchmark.progress = 0
 
@@ -70,7 +92,7 @@ class Trainer(trainer.Trainer):
 
             # Update benchmark progress
             self.benchmark.progress = float(i) / (len(self.dataset) * self.epochs)
-        
+
         self.iterations = i
 
 class TorchImagenetBenchmark(dellve.Benchmark):
@@ -82,11 +104,13 @@ class TorchImagenetBenchmark(dellve.Benchmark):
         num_workers=0,
         num_epochs=3,
         batch_size=256,
+        train_size_limit=1000,
+        valid_size_limit=200,
         learning_rate=0.1,
         sgd_momentum=0.9,
         sgd_weight_decay=1e-4,
         print_freq=1):
-        
+
         torch.cuda.set_device(device_id)
 
         model = getattr(models, model_name)().cuda()
@@ -98,7 +122,7 @@ class TorchImagenetBenchmark(dellve.Benchmark):
             transforms.Lambda(lambda t: torch.cuda.LongTensor([t]))
 
         train_data_loader = torch.utils.data.DataLoader(
-            datasets.CIFAR10('data_cifar10', train=True,
+            DataSet('data_cifar10', size_limit=train_size_limit, train=True,
                 transform=transforms.Compose([
                     transforms.RandomSizedCrop(224),
                     transforms.RandomHorizontalFlip(),
@@ -114,7 +138,7 @@ class TorchImagenetBenchmark(dellve.Benchmark):
             num_workers=num_workers)
 
         val_data_loader = torch.utils.data.DataLoader(
-            datasets.CIFAR10('data_cifar10', train=False,
+            DataSet('data_cifar10', size_limit=valid_size_limit, train=False,
                 transform=transforms.Compose([
                     transforms.RandomSizedCrop(224),
                     transforms.RandomHorizontalFlip(),
