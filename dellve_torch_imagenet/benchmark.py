@@ -20,7 +20,13 @@ import torchvision.datasets as datasets
 import torchvision.models as models
 
 class DataSet(datasets.CIFAR10):
-    def __init__(self, *args, size_limit=None, **kwargs):
+    def __init__(self, *args, **kwargs):
+        if 'size_limit' in kwargs:
+            size_limit = kwargs['size_limit']
+            del kwargs['size_limit']
+        else:
+            size_limit = None
+
         datasets.CIFAR10.__init__(self, *args, **kwargs)
 
         if size_limit is None:
@@ -104,8 +110,8 @@ class TorchImagenetBenchmark(dellve.Benchmark):
         num_workers=0,
         num_epochs=3,
         batch_size=256,
-        train_size_limit=1000,
-        valid_size_limit=200,
+        train_size_limit=5000,
+        valid_size_limit=1000,
         learning_rate=0.1,
         sgd_momentum=0.9,
         sgd_weight_decay=1e-4,
