@@ -20,7 +20,7 @@ import torchvision.datasets as datasets
 import torchvision.models as models
 
 class DataSet(datasets.CIFAR10):
-    def __init__(self, size_limit=None, *args, **kwargs):
+    def __init__(self, *args, size_limit=None, **kwargs):
         datasets.CIFAR10.__init__(self, *args, **kwargs)
 
         if size_limit is None:
