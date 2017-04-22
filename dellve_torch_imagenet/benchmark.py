@@ -106,6 +106,8 @@ class TorchImagenetBenchmark(dellve.Benchmark):
 
     name = 'TorchImagenetBenchmark'
 
+    config = BenchmarkConfig([])
+
     def benchmark(self, model_name,
         device_id=1,
         num_workers=0,
@@ -291,3 +293,5 @@ class AlexnetBenchmark(TorchImagenetBenchmark):
 #
 #    def run(self):
 #        self.run_benchmark('vgg19_bn')
+
+
