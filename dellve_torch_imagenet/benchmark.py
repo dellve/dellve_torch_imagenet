@@ -97,7 +97,8 @@ class Trainer(trainer.Trainer):
             self.call_plugins('update', i, self.model)
 
             # Update benchmark progress
-            self.benchmark.progress = float(i) / (len(self.dataset) * self.epochs)
+            self.benchmark.progress = \
+                int(100 * float(i) / (len(self.dataset) * self.epochs))
 
         self.iterations = i
 
