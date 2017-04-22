@@ -106,7 +106,7 @@ class TorchImagenetBenchmark(dellve.Benchmark):
 
     name = 'TorchImagenetBenchmark'
 
-    config = BenchmarkConfig([])
+    config = dellve.BenchmarkConfig([])
 
     def benchmark(self, model_name,
         device_id=1,
