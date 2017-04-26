@@ -106,19 +106,58 @@ class TorchImagenetBenchmark(dellve.Benchmark):
 
     name = 'TorchImagenetBenchmark'
 
-    config = dellve.BenchmarkConfig([])
+    config = dellve.BenchmarkConfig([
+        ('gpu-id', 1),
+        ('number-of-epochs', 1),
+        ('train-dataset-size', 5000),
+        ('validation-dataset-size', 1000)
+    ])
+
+    schema = {
+        'type': 'object',
+        'properties': {
+            'gpu-id': {
+                'type': 'integer',
+                'minimum': 1,
+                'maximum': 2,
+            },
+            'number-of-epochs': {
+                'type': 'integer',
+                'minimum': 1,
+                'maximum': 100
+            },
+            'train-dataset-size': {
+                'type': 'integer',
+                'minimum': 5000,
+                'maximum': 50000
+            },
+            'validation-dataset-size': {
+                'type': 'integer',
+                'minimum': 1000,
+                'maximum': 10000
+            },
+        },
+        'required': [
+            'GPU-device-id',
+            'number-of-epochs',
+            'train-dataset-size',
+            'validation-dataset-size',
+        ]
+    }
 
     def benchmark(self, model_name,
-        device_id=1,
         num_workers=0,
         num_epochs=3,
         batch_size=256,
-        train_size_limit=5000,
-        valid_size_limit=1000,
         learning_rate=0.1,
         sgd_momentum=0.9,
         sgd_weight_decay=1e-4,
         print_freq=1):
+
+        device_id = self.config('GPU-device-id')
+        num_epochs = self.config('number-of-epochs')
+        train_size_limit = self.config('train-dataset-size')
+        valid_size_limit = self.config('validation-dataset-size')
 
         torch.cuda.set_device(device_id)
 
