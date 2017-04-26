@@ -107,41 +107,41 @@ class TorchImagenetBenchmark(dellve.Benchmark):
     name = 'TorchImagenetBenchmark'
 
     config = dellve.BenchmarkConfig([
-        ('gpu-id', 1),
-        ('number-of-epochs', 1),
-        ('train-dataset-size', 5000),
-        ('validation-dataset-size', 1000)
+        ('device-id', 1),
+        ('num-epochs', 1),
+        ('train-size', 5000),
+        ('valid-size', 1000)
     ])
 
     schema = {
         'type': 'object',
         'properties': {
-            'gpu-id': {
+            'device-id': {
                 'type': 'integer',
                 'minimum': 1,
                 'maximum': 2,
             },
-            'number-of-epochs': {
+            'num-epochs': {
                 'type': 'integer',
                 'minimum': 1,
                 'maximum': 100
             },
-            'train-dataset-size': {
+            'train-size': {
                 'type': 'integer',
                 'minimum': 5000,
                 'maximum': 50000
             },
-            'validation-dataset-size': {
+            'valid-size': {
                 'type': 'integer',
                 'minimum': 1000,
                 'maximum': 10000
             },
         },
         'required': [
-            'GPU-device-id',
-            'number-of-epochs',
-            'train-dataset-size',
-            'validation-dataset-size',
+            'device-id',
+            'num-epochs',
+            'train-size',
+            'valid-size',
         ]
     }
 
@@ -154,10 +154,10 @@ class TorchImagenetBenchmark(dellve.Benchmark):
         sgd_weight_decay=1e-4,
         print_freq=1):
 
-        device_id = self.config('GPU-device-id')
-        num_epochs = self.config('number-of-epochs')
-        train_size_limit = self.config('train-dataset-size')
-        valid_size_limit = self.config('validation-dataset-size')
+        device_id = self.config['device-id']
+        num_epochs = self.config['num-epochs']
+        train_size_limit = self.config['train-size']
+        valid_size_limit = self.config['valid-size']
 
         torch.cuda.set_device(device_id)
 
